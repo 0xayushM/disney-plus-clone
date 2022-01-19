@@ -1,30 +1,6 @@
 import styled from "styled-components";
-// import { auth } from "../firebase";
-// import { provider } from "../firebase";
-import { authentication } from "../firebase";
-import { signInWithPopup } from "firebase/auth";
-import { GoogleAuthProvider } from "firebase/auth";
 const Header = (props) => {
-    const signinwithgoogle = ()=> {
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(authentication,provider)
-        .then((re)=>{
-            console.log(re);
-        })
-        .catch((err)=>{
-            console.log(err);
-        })
-    }
-
-    // const handleAuth = () => {
-    //     auth.signInWithPopup(provider)
-    //     .then((result) => {
-    //         console.log(result);
-    //     })
-    //     .catch((error) => {
-    //         alert(error.message);
-    //     }) 
-    // }
+    
     return (
         <Nav>
             <Logo>
@@ -56,7 +32,7 @@ const Header = (props) => {
                     <span>SERIES</span>
                 </a>
             </NavMenu>
-            <Login onClick={signinwithgoogle}>LOGIN</Login>
+            <Login>LOGIN</Login>
         </Nav>
     )
 }
