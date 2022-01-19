@@ -1,7 +1,7 @@
 import styled from "styled-components";
 // import { auth } from "../firebase";
 // import { provider } from "../firebase";
-import { authentication } from "./firebase-config";
+import { authentication } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
 const Header = (props) => {
