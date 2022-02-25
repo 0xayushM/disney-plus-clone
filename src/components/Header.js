@@ -1,39 +1,105 @@
 import styled from "styled-components";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { authentication } from "../firebase";
+import { signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
+import { 
+    selectUserName, 
+    selectUserPhoto, 
+    setSignOutState, 
+    setUserLoginDetails 
+} from "../features/user/userSlice";
+
+
 const Header = (props) => {
-    
+    const dispatch = useDispatch();
+    const history = useHistory();
+    const username = useSelector(selectUserName);
+    const userphoto = useSelector(selectUserPhoto); 
+
+    useEffect(()=>{
+        authentication.onAuthStateChanged(async (user)=>{
+            if(!user) { 
+                setUser(user)
+                history.push('/home')
+            }
+        })
+    },[username])
+
+    const signInWithGoogle = ()=> {
+        const provider = new GoogleAuthProvider();
+        if(!username){
+            signInWithPopup(authentication,provider)
+            .then((re)=>{
+                setUser(re.user);
+                history.push('/home')
+            }).catch((err)=>{
+                console.log(err);
+            })
+        } else if(username) {
+            signOut(authentication)
+            .then(()=>{
+                dispatch(setSignOutState())
+                history.push('/')
+            }).catch((err)=>{
+                console.log(err);
+            })
+        }
+    };
+    const setUser = (user) => {
+       dispatch(
+           setUserLoginDetails({
+            name:user.displayName,
+            email:user.email,
+            photo:user.photoURL,
+           })
+       )
+    }
     return (
         <Nav>
             <Logo>
                 <img src="/images/logo.svg" alt="Disney+"/>
             </Logo>
-            <NavMenu>
-                <a href="/home">
-                    <img src="/images/home-icon.svg" alt="HOME" />
-                    <span>HOME</span>
-                </a>
-                <a href="/search">
-                    <img src="/images/search-icon.svg" alt="SEARCH" />
-                    <span>SEARCH</span>
-                </a>
-                <a href="/watchlist">
-                    <img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
-                    <span>WATCHLIST</span>
-                </a>
-                <a href="/originals">
-                    <img src="/images/original-icon.svg" alt="ORIGINALS" />
-                    <span>ORIGINALS</span>
-                </a>
-                <a href="/movies">
-                    <img src="/images/movie-icon.svg" alt="MOVIES" />
-                    <span>MOVIES</span>
-                </a>
-                <a href="/series">
-                    <img src="/images/series-icon.svg" alt="SERIES" />
-                    <span>SERIES</span>
-                </a>
-            </NavMenu>
-            <Login>LOGIN</Login>
-        </Nav>
+            {!username ? (
+                <Login onClick={signInWithGoogle}>LOGIN</Login>
+            ) : (
+                <>
+                <NavMenu>
+                    <a href="/home">
+                        <img src="/images/home-icon.svg" alt="HOME" />
+                        <span>HOME</span>
+                    </a>
+                    <a href="/search">
+                        <img src="/images/search-icon.svg" alt="SEARCH" />
+                        <span>SEARCH</span>
+                    </a>
+                    <a href="/watchlist">
+                        <img src="/images/watchlist-icon.svg" alt="WATCHLIST" />
+                        <span>WATCHLIST</span>
+                    </a>
+                    <a href="/originals">
+                        <img src="/images/original-icon.svg" alt="ORIGINALS" />
+                        <span>ORIGINALS</span>
+                    </a>
+                    <a href="/movies">
+                        <img src="/images/movie-icon.svg" alt="MOVIES" />
+                        <span>MOVIES</span>
+                    </a>
+                    <a href="/series">
+                        <img src="/images/series-icon.svg" alt="SERIES" />
+                        <span>SERIES</span>
+                    </a>
+                </NavMenu>
+                <SignOut>
+                    <UserImg src={userphoto} alt=""/>
+                    <Dropdown>
+                        <span onClick={signInWithGoogle}>Sign out</span>
+                    </Dropdown>
+                </SignOut>
+            </>
+            )}
+        </Nav>        
     )
 }
 
@@ -139,6 +205,45 @@ const Login = styled.a`
         border-color:transparent;
     }
 `
+const UserImg = styled.img`
+    height: 100%;
+`
+const Dropdown = styled.div`
+    position: absolute;
+    top: 48px;
+    right: 0px;
+    background: rgb(19,19,19);
+    border:1px solid rgba(151,151,151,0.34) ;
+    border-radius: 4px;
+    box-shadow: rgb(0 0 0/ 50%) 0px 0px 18px 0px;
+    padding: 10px;
+    font-size: 14px;
+    letter-spacing: 3px;
+    width: 100px;
+    opacity: 0;
+`
+const SignOut = styled.div`
+    position: relative;
+    height: 48px;
+    width: 48px;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    ${UserImg} {
+        border-radius: 50%;
+        width: 100%;
+        height: 100%;
+    }
+    &:hover{
+        ${Dropdown} {
+            opacity:1;
+            transition-duration: 1s;
+        }
+    }
+
+`
+
 
 
 export default Header;
